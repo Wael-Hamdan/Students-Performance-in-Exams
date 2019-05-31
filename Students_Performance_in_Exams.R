@@ -45,10 +45,16 @@ shapiro.test(studentPerf$reading.score)
 #Le test de Shapiro-Wilk donne une probabilité de dépassement de 0.0001055, supérieure au seuil de signification de 5%. L'hypothèse de normalité de reading.score est donc tolérée.
 shapiro.test(studentPerf$writing.score)
 #Le test de Shapiro-Wilk donne une probabilité de dépassement de 2.922e-05, supérieure au seuil de signification de 5%. L'hypothèse de normalité de writing.score est donc tolérée.
+######NOTE : LES DATA NE SONT PAS NORMALES D4APRES SHAPIRO WILKS, ONE NE PEUT DONC PAS FAIRE LE TEST DE BARTLETT NI ANOVA
+
+a <- rnorm(1000, 0, 1)
+hist(a)
+shapiro.test(a)
+
 
 #2)Test d'homoscédasticité
 bartlett.test(math.score~gender,data=studentPerf)
-#p-value = 0.08995 > 5% => On ne rejette pas H0, on ne rejette donc pas l’hypothèse d’homoscédasticité.
+#p-value = 0.08995 > 5% => On rejette H0, on ne rejette donc pas l’hypothèse d’homoscédasticité.
 bartlett.test(reading.score~gender,data=studentPerf)
 #p-value = 0.4818 > 5% => On ne rejette pas H0, on ne rejette donc pas l’hypothèse d’homoscédasticité.
 bartlett.test(writing.score~gender,data=studentPerf)
