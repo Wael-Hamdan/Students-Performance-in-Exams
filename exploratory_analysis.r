@@ -1,3 +1,6 @@
+library(ade4)
+library(RColorBrewer)
+
 studentPerf <- read.csv("StudentsPerformance.csv")
 quantitativeCol <- c("math.score","reading.score", "writing.score")
 
@@ -96,7 +99,7 @@ plot(studentPerf[,6:8], col = c("red","blue")[studentPerf$gender])
 ### male students tend to do better in math according to the data, whereas female tend to score better in reading/writing exams
 
 
-################################################ 
+################################################ BEGIN ONE HUNT ENCODING
 
 
 ## change the qualitative into quantitative
@@ -128,7 +131,17 @@ orderedfact <- factor(studentQuant$parental.level.of.education , levels = fact, 
 studentQuant$parental.level.of.education <- as.numeric(orderedfact)
 
 ## we basically turn the parental education into an ordered numeric : master is 1, bachelor is 2... 
+## now time to do the same for the race/ethnicity
 
+races <- levels(studentPerf$race.ethnicity)
+for (race in races) {
+  tmp <- as.numeric(studentPerf[, "race.ethnicity"] == race)
+  newCol <- data.frame(race = tmp)
+  colnames(newCol) <- race
+  studentQuant <- cbind(studentQuant, newCol)
+}
+
+################# every variable is now quantitative
 summary(studentQuant)
 
 cor(studentQuant)
@@ -166,3 +179,26 @@ postacp2 <- cbind(studentQuant.acp2$scores, studentQuant[1:3])
 plot(postacp2$Comp.1, postacp2$Comp.2, col = c("red", "blue", "green", "purple")[postacp2$math.score])
 
 #### one-hunt encoding is shit here
+### ACM
+studentFactor <- studentPerf
+
+studentFactor$math.score <- cut(studentFactor$math.score, breaks = c(-1,50,60,90,101), labels = c("fail","bad","average","first"))
+studentFactor$writing.score <- cut(studentFactor$writing.score, breaks = c(-1,50,60,90,101), labels = c("fail","bad","average","first"))
+studentFactor$reading.score <- cut(studentFactor$reading.score, breaks = c(-1,50,60,90,101), labels = c("fail","bad","average","first"))
+
+summary(studentFactor)
+
+studentFactor.acm <- dudi.acm(studentFactor[, -c(6,7,8)], nf = 12, scannf = FALSE)
+studentFactor.acm2 <- dudi.acm(studentFactor, nf = 15, scannf = FALSE)
+s.corcircle(studentFactor.acm$co,1,2,clabel = 0.5)
+s.corcircle(studentFactor.acm2$co,1,2,clabel = 0.5)
+
+s.label(studentFactor.acm$li, clabel=0, pch=20)
+s.class(studentFactor.acm$li, studentFactor$math.score, col = brewer.pal(4, "Spectral"))
+
+s.label(studentFactor.acm2$li, clabel=0, pch=20)
+s.class(studentFactor.acm2$li, studentFactor$math.score, col = brewer.pal(4, "Spectral"))
+
+scatter(studentFactor.acm, col = brewer.pal(12, "Paired"))
+scatter(studentFactor.acm2, col = brewer.pal(12, "Paired"))
+
