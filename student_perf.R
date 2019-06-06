@@ -130,8 +130,121 @@ ggplot(data = melted_cormat, aes(Var2, Var1, fill = value))+
 
 # To predict math_score, we see that lunch, race and reading/writing scores are related to the result. We use them in the linear model.
 #--------------------------------------------------------------------#
+# Descriptive statistic
+attach(raw_data)
+summary(raw_data)
 
+hist(math_score, freq = TRUE, angle = 30, density = 30, col = 'blue', border = "purple",
+     xlab = "Math score", ylab = "Frequence", main = "Histogramme de frequence pour math score")
 
+describe(math_score)
+#--------------------------------------------------------------------#
+# Max min
+
+raw_data[which.max(math_score),]
+raw_data[which.min(math_score),]
+
+win.graph(width=10, height=8,pointsize=8)
+
+par(fig = c(0, 0.8, 0, 0.8)) 
+plot(reading_score, math_score, xlab = "reading_score", ylab = "math_score", pch = 20)
+par(fig = c(0, 0.8, 0.55, 1), new = TRUE) 
+boxplot(reading_score, horizontal = TRUE, axes = FALSE, col = "gold")
+par(fig = c(0.65, 1, 0, 0.8), new = TRUE)
+boxplot(math_score, axes = FALSE, col = "gold")
+mtext("Nuage de points: reading - math score", side = 3, outer = TRUE,  line = -3)
+par(opar)
+#--------------------------------------------------------------------#
+# Hypothesis of Gaussien distribution -------
+dagoTest(math_score)
+
+ks.test(jitter(math_score),'pnorm')$p.value 
+ks.test(jitter(math_score),'pnorm')$p.value < 0.05 
+#TRUE: Rejette l'hyp de Gaussien
+
+ks.test(reading_score,'pnorm')$p.value 
+ks.test(reading_score,'pnorm')$p.value < 0.05 
+#TRUE: Rejette l'hyp de Gaussien
+
+ks.test(writing_score,'pnorm')$p.value 
+ks.test(writing_score,'pnorm')$p.value < 0.05 
+#TRUE: Rejette l'hyp de Gaussien
+#--------------------------------------------------------------------#
+# Histogramme de math_score
+hist(math_score, freq = FALSE, breaks = seq(min(math_score),max(math_score), length = 20), col = "lightgray",
+     main = "test d'hypothèse de gaussienne: Math_score", xlab = "Math_score", ylab = "Estimation par noyau: Math_score")
+lines(density(math_score), col = 'red', lty = 1, lwd = 2)
+MATH_SCORE <- math_score[order(math_score)] 
+lines(MATH_SCORE, dnorm(MATH_SCORE, mean(MATH_SCORE), sd(MATH_SCORE)), col = 'blue', lty = 2, lwd = 2.5)
+legend("topright",legend = c("Courbe d'Estimation par noyau: Math_score","Courbe de Gaussienne distribution"),
+       col = c("red","blue"), lty = c(1,5), lwd = c(2,2.5), bty = 'n')
+
+# Histogramme de reading_score
+hist(reading_score, freq = FALSE, breaks = seq(min(reading_score),max(reading_score), length = 20), col = "lightgray",
+     main = "test d'hypothèse de gaussienne: Reading_score", xlab = "Reading_score", ylab = "Estimation par noyau: Reading_score")
+lines(density(reading_score), col = 'red', lty = 1, lwd = 2)
+READING_SCORE <- reading_score[order(reading_score)] 
+lines(READING_SCORE, dnorm(READING_SCORE, mean(READING_SCORE), sd(READING_SCORE)), col = 'blue', lty = 2, lwd = 2.5)
+legend("topleft",legend = c("Courbe d'Estimation par noyau: Reading_score","Courbe de Gaussienne distribution"),
+       col = c("red","blue"), lty = c(1,5), lwd = c(2,2.5), bty = 'n')
+
+# Histogramme de math_score
+hist(writing_score, freq = FALSE, breaks = seq(min(writing_score),max(writing_score), length = 20), col = "lightgray",
+     main = "test d'hypothèse de gaussienne: Writing_score", xlab = "Writing_score", ylab = "Estimation par noyau: Writing_score")
+lines(density(writing_score), col = 'red', lty = 1, lwd = 2)
+WRITING_SCORE <- writing_score[order(writing_score)] 
+lines(WRITING_SCORE, dnorm(WRITING_SCORE, mean(WRITING_SCORE), sd(WRITING_SCORE)), col = 'blue', lty = 2, lwd = 2.5)
+legend("topleft",legend = c("Courbe d'Estimation par noyau: Writing_score","Courbe de Gaussienne distribution"),
+       col = c("red","blue"), lty = c(1,5), lwd = c(2,2.5), bty = 'n')
+
+# Graphe Q-Q et P-P pour maths_score
+par(mfrow = c(1,2))
+qqnorm(math_score, xlab = "Vraie distribution", ylab = "Gaussienne distribution",
+       main = "Q-Q plot pour Math_score", col = "blue")
+qqline(math_score)
+
+P <- pnorm(math_score, mean(math_score), sd(math_score))
+cdf <- 0
+for(i in 1:length(math_score)){cdf[i] <- sum(math_score <= math_score[i])/length(math_score)}
+plot(cdf, P, xlab = 'Vraie distribution', ylab = 'Gaussienne distribution',
+     main = 'P-P plot pour Math_score', xlim = c(0,1), ylim = c(0,1), col = 'blue')
+abline(a = 0, b = 1)
+par(opar)
+
+# Graphe Q-Q et P-P pour reading_score
+par(mfrow = c(1,2))
+qqnorm(reading_score, xlab = "Vraie distribution", ylab = "Gaussienne distribution",
+       main = "Q-Q plot pour Reading_score", col = "blue")
+qqline(reading_score)
+
+P <- pnorm(reading_score, mean(reading_score), sd(reading_score))
+cdf <- 0
+for(i in 1:length(reading_score)){cdf[i] <- sum(reading_score <= reading_score[i])/length(reading_score)}
+plot(cdf, P, xlab = 'Vraie distribution', ylab = 'Gaussienne distribution',
+     main = 'P-P plot pour Reading_score', xlim = c(0,1), ylim = c(0,1), col = 'blue')
+abline(a = 0, b = 1)
+par(opar)
+# Graphe Q-Q et P-P pour writing_score
+par(mfrow = c(1,2))
+qqnorm(writing_score, xlab = "Vraie distribution", ylab = "Gaussienne distribution",
+       main = "Q-Q plot pour Writing_score", col = "blue")
+qqline(writing_score)
+
+P <- pnorm(writing_score, mean(writing_score), sd(writing_score))
+cdf <- 0
+for(i in 1:length(writing_score)){cdf[i] <- sum(writing_score <= writing_score[i])/length(writing_score)}
+plot(cdf, P, xlab = 'Vraie distribution', ylab = 'Gaussienne distribution',
+     main = 'P-P plot pour Reading_score', xlim = c(0,1), ylim = c(0,1), col = 'blue')
+abline(a = 0, b = 1)
+par(opar)
+#--------------------------------------------------------------------#
+# collinearity diagnostics spss ---------------------------
+corxx <- cbind(raw_data[,c(6:8)],CT,sch,sub,FC)
+str(corxx)
+XX <- cor(corxx)
+kappa(XX,exact=TRUE) #exact=TRUE表示精确计算条件数
+
+vif(lm_sol_log)
 
 #Linear regression to predict math/reading/writing scores#
 
